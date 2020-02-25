@@ -1,5 +1,6 @@
-apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven'
+
 group = GROUP
 version = VERSION_NAME
 
@@ -23,12 +24,13 @@ def isSnapshot() {
 }
 
 def hasAndroidPlugin() {
-    return getPlugins().inject(false) { a, b->
+    return getPlugins().inject(false) { a, b ->
         def classStr = b.getClass().name
         def isAndroid = ("com.android.build.gradle.LibraryPlugin" == classStr) || ("com.android.build.gradle.AppPlugin" == classStr)
         a || isAndroid
     }
 }
+
 task sourcesJar(type: Jar) {
     if (hasAndroidPlugin()) {
         from android.sourceSets.main.java.srcDirs
@@ -42,10 +44,18 @@ artifacts {
     archives sourcesJar
 }
 
+def uploadUrl = "http://maven.17gwx.com/repository/maven-releases/"
+
 uploadArchives {
-    repositories.mavenDeployer {
-        repository(url: repositoryUrl) {
-            authentication(userName: getPropertyFromLocalProperties("USER"), password: getPropertyFromLocalProperties("PASSWORD"))
+    repositories {
+        mavenDeployer {
+            repository(url: uri('/Users/ryanhuen/OtherProject/Robust/plugin_local'))
+//            repository(url: uploadUrl) {
+//                //nexus登录默认用户名和密码
+//                authentication(userName: "develop", password: "sqkb@maven")
+//            }
+
+//            pom.artifactId = 'ex-android-utils-library'
         }
     }
 }
