@@ -11,6 +11,7 @@ import robust.gradle.plugin.asm.AsmInsertImpl
 import robust.gradle.plugin.javaassist.JavaAssistInsertImpl
 
 import java.util.zip.GZIPOutputStream
+
 /**
  * Created by mivanzhang on 16/11/3.
  *
@@ -31,6 +32,8 @@ class RobustTransform extends Transform implements Plugin<Project> {
     private static boolean isForceInsert = false;
 //    private static boolean useASM = false;
     private static boolean useASM = true;
+    private static boolean isForceInsertLambda = false;
+
     def robust
     InsertcodeStrategy insertcodeStrategy;
 
@@ -96,7 +99,7 @@ class RobustTransform extends Transform implements Plugin<Project> {
 
         if (null != robust.switch.useAsm && "false".equals(String.valueOf(robust.switch.useAsm.text()))) {
             useASM = false;
-        }else {
+        } else {
             //默认使用asm
             useASM = true;
         }
@@ -110,6 +113,10 @@ class RobustTransform extends Transform implements Plugin<Project> {
         else
             isForceInsert = false
 
+        if (robust.switch.forceInsertLambda != null && "true".equals(String.valueOf(robust.switch.forceInsertLambda.text())))
+            isForceInsertLambda = true;
+        else
+            isForceInsertLambda = false;
     }
 
     @Override
@@ -140,10 +147,10 @@ class RobustTransform extends Transform implements Plugin<Project> {
         outputProvider.deleteAll()
         File jarFile = outputProvider.getContentLocation("main", getOutputTypes(), getScopes(),
                 Format.JAR);
-        if(!jarFile.getParentFile().exists()){
+        if (!jarFile.getParentFile().exists()) {
             jarFile.getParentFile().mkdirs();
         }
-        if(jarFile.exists()){
+        if (jarFile.exists()) {
             jarFile.delete();
         }
 
@@ -155,10 +162,10 @@ class RobustTransform extends Transform implements Plugin<Project> {
         def box = ConvertUtils.toCtClasses(inputs, classPool)
         def cost = (System.currentTimeMillis() - startTime) / 1000
 //        logger.quiet "check all class cost $cost second, class count: ${box.size()}"
-        if(useASM){
-            insertcodeStrategy=new AsmInsertImpl(hotfixPackageList,hotfixMethodList,exceptPackageList,exceptMethodList,isHotfixMethodLevel,isExceptMethodLevel);
-        }else {
-            insertcodeStrategy=new JavaAssistInsertImpl(hotfixPackageList,hotfixMethodList,exceptPackageList,exceptMethodList,isHotfixMethodLevel,isExceptMethodLevel);
+        if (useASM) {
+            insertcodeStrategy = new AsmInsertImpl(hotfixPackageList, hotfixMethodList, exceptPackageList, exceptMethodList, isHotfixMethodLevel, isExceptMethodLevel);
+        } else {
+            insertcodeStrategy = new JavaAssistInsertImpl(hotfixPackageList, hotfixMethodList, exceptPackageList, exceptMethodList, isHotfixMethodLevel, isExceptMethodLevel);
         }
         insertcodeStrategy.insertCode(box, jarFile);
         writeMap2File(insertcodeStrategy.methodMap, Constants.METHOD_MAP_OUT_PATH)
