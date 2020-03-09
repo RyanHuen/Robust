@@ -2,7 +2,6 @@ package com.meituan.sample;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -13,8 +12,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.meituan.robust.patch.annotaion.Add;
-import com.meituan.robust.patch.annotaion.Modify;
+import com.meituan.robust.patch.RobustModify;
 
 import java.lang.reflect.Field;
 
@@ -23,6 +21,7 @@ public class SecondActivity extends AppCompatActivity implements View.OnClickLis
     protected static String name = "SecondActivity";
     private ListView listView;
     private String[] multiArr = {"列表1", "列表2", "列表3", "列表4"};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,28 +30,27 @@ public class SecondActivity extends AppCompatActivity implements View.OnClickLis
         listView = (ListView) findViewById(R.id.listview);
         TextView textView = (TextView) findViewById(R.id.secondtext);
         textView.setOnClickListener(v -> {
-//                    RobustModify.modify();
-                    Log.d("robust", " onclick  in Listener");
+                    RobustModify.modify();
+                    Log.d("robust", " modify by ryanhuen");
                 }
         );
         //change text on the  SecondActivity
-        textView.setText(getTextInfo());
+        textView.setText("测试我");
 
         //test array
         BaseAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_expandable_list_item_1, multiArr);
         listView.setAdapter(adapter);
     }
 
-//    @Modify
+    //    @Modify
     public String getTextInfo() {
         getArray();
-        return "error occur " ;
+        return "error occur ";
 //        return "error fixed";
     }
 
-    @Add
     public String[] getArray() {
-       return new String[]{"hello","world"};
+        return new String[]{"hello", "world"};
     }
 
     @Override
